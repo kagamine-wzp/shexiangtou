@@ -1,134 +1,80 @@
 <!DOCTYPE html>
-<html><head>
-    <title>HTML5 code Reader</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
-</head>
-<style type="text/css">
-    html, body { height: 100%; width: 100%; text-align:center; }
-</style>
-<script src="jquery-1.9.1.js"></script>
-<script>
-    //Õâ¶Î´ú Ö÷ÒªÊÇ»ñÈ¡ÉãÏñÍ·µÄÊÓÆµÁ÷²¢ÏÔÊ¾ÔÚVideo Ç©ÖĞ
-    var canvas=null,context=null,video=null;
-    window.addEventListener("DOMContentLoaded", function ()
-    {
-        try{
-            canvas = document.getElementById("canvas");
-            context = canvas.getContext("2d");
-            video = document.getElementById("video");
-
-            var videoObj = { "video": true,audio:false},
-                    flag=true,
-                    MediaErr = function (error)
-                    {
-                        flag=false;
-                        if (error.PERMISSION_DENIED)
-                        {
-                            alert('ÓÃ»§¾Ü¾øÁËä¯ÀÀÆ÷ÇëÇóÃ½ÌåµÄÈ¨ÏŞ', 'ÌáÊ¾');
-                        } else if (error.NOT_SUPPORTED_ERROR) {
-                            alert('¶Ô²»Æğ£¬ÄúµÄä¯ÀÀÆ÷²»Ö§³ÖÅÄÕÕ¹¦ÄÜ£¬ÇëÊ¹ÓÃÆäËûä¯ÀÀÆ÷', 'ÌáÊ¾');
-                        } else if (error.MANDATORY_UNSATISFIED_ERROR) {
-                            alert('Ö¸¶¨µÄÃ½ÌåÀàĞÍÎ´½ÓÊÕµ½Ã½ÌåÁ÷', 'ÌáÊ¾');
-                        } else {
-                            alert('ÏµÍ³Î´ÄÜ»ñÈ¡µ½ÉãÏñÍ·£¬ÇëÈ·±£ÉãÏñÍ·ÒÑÕıÈ·°²×°¡£»ò³¢ÊÔË¢ĞÂÒ³Ãæ£¬ÖØÊÔ', 'ÌáÊ¾');
-                        }
-                    };
-            //»ñÈ¡Ã½ÌåµÄ¼æÈİ´úÂë£¬Ä¿Ç°Ö»Ö§³Ö£¨Firefox,Chrome,Opera£©
-            if (navigator.getUserMedia)
-            {
-                //qqä¯ÀÀÆ÷²»Ö§³Ö
-                if (navigator.userAgent.indexOf('MQQBrowser') > -1) {
-                    alert('¶Ô²»Æğ£¬ÄúµÄä¯ÀÀÆ÷²»Ö§³ÖÅÄÕÕ¹¦ÄÜ£¬ÇëÊ¹ÓÃÆäËûä¯ÀÀÆ÷', 'ÌáÊ¾');
-                    return false;
-                }
-                navigator.getUserMedia(videoObj, function (stream) {
-                    video.src = stream;
-                    video.play();
-                }, MediaErr);
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="http://123.56.106.187:8010/Scripts/listjs/jquery-1.7.2.min.js"></script>
+    <script>
+        //åˆ¤æ–­æµè§ˆå™¨æ˜¯å¦æ”¯æŒHTML5 Canvas
+        window.onload = function () {
+            try {
+//åŠ¨æ€åˆ›å»ºä¸€ä¸ªcanvaså…ƒ ï¼Œå¹¶è·å–ä»–2Dcontextã€‚å¦‚æœå‡ºç°å¼‚å¸¸åˆ™è¡¨ç¤ºä¸æ”¯æŒ document.createElement("canvas").getContext("2d");
+// document.getElementById("support").innerHTML = "æµè§ˆå™¨æ”¯æŒHTML5 CANVAS";
             }
-            else if(navigator.webkitGetUserMedia)
-            {
-                navigator.webkitGetUserMedia(videoObj, function (stream)
-                {
+            catch (e) {
+// document.getElementByIdx("support").innerHTML = "æµè§ˆå™¨ä¸æ”¯æŒHTML5 CANVAS";
+            }
+        };
+        //è¿™æ®µä»£ ä¸»è¦æ˜¯è·å–æ‘„åƒå¤´çš„è§†é¢‘æµå¹¶æ˜¾ç¤ºåœ¨Video ç­¾ä¸­
+        window.addEventListener("DOMContentLoaded", function () {
+            var canvas = document.getElementById("canvas"),
+                    context = canvas.getContext("2d"),
+                    video = document.getElementById("video"),
+                    videoObj = { "video": true },
+                    errBack = function (error) {
+                        console.log("Video capture error: ", error.code);
+                    };
+            $("#snap").click(function () {
+                context.drawImage(video, 0, 0, 330, 250);
+            })
+//navigator.getUserMediaè¿™ä¸ªå†™æ³•åœ¨Operaä¸­å¥½åƒæ˜¯navigator.getUserMedianow
+            if (navigator.getUserMedia) {
+                navigator.getUserMedia(videoObj, function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                }, errBack);
+            } else if (navigator.webkitGetUserMedia) {
+                navigator.webkitGetUserMedia(videoObj, function (stream) {
                     video.src = window.webkitURL.createObjectURL(stream);
                     video.play();
-                }, MediaErr);
+                }, errBack);
             }
-            else if (navigator.mozGetUserMedia)
-            {
-                navigator.mozGetUserMedia(videoObj, function (stream) {
-                    video.src = window.URL.createObjectURL(stream);
-                    video.play();
-                }, MediaErr);
-            }
-            else if (navigator.msGetUserMedia)
-            {
-                navigator.msGetUserMedia(videoObj, function (stream) {
-                    $(document).scrollTop($(window).height());
-                    video.src = window.URL.createObjectURL(stream);
-                    video.play();
-                }, MediaErr);
-            }else{
-                alert('¶Ô²»Æğ£¬ÄúµÄä¯ÀÀÆ÷²»Ö§³ÖÅÄÕÕ¹¦ÄÜ£¬ÇëÊ¹ÓÃÆäËûä¯ÀÀÆ÷');
-                return false;
-            }
-            if(flag){
-                alert('ÎªÁË»ñµÃ¸ü×¼È·µÄ²âÊÔ½á¹û£¬Çë¾¡Á¿½«¶şÎ¬ÂëÖÃÓÚ¿òÖĞ£¬È»ºó½øĞĞÅÄÉã¡¢É¨Ãè¡£ ÇëÈ·±£ä¯ÀÀÆ÷ÓĞÈ¨ÏŞÊ¹ÓÃÉãÏñ¹¦ÄÜ');
-            }
-            //Õâ¸öÊÇÅÄÕÕ°´Å¥µÄÊÂ¼ş£¬
-            $("#snap").click(function () {startPat();}).show();
-        }catch(e){
-            printHtml("ä¯ÀÀÆ÷²»Ö§³ÖHTML5 CANVAS");
-        }
-    }, false);
 
-    //´òÓ¡ÄÚÈİµ½Ò³Ãæ
-    function printHtml(content){
-        $(window.document.body).append(content+"<br/>");
-    }
-    //¿ªÊ¼ÅÄÕÕ
-    function startPat(){
-        setTimeout(function(){//·ÀÖ¹µ÷ÓÃ¹ı¿ì
-            if(context)
-            {
-                context.drawImage(video, 0, 0, 320, 320);
-                CatchCode();
-            }
-        },200);
-    }
-    //×¥ÆÁ»ñÈ¡Í¼ÏñÁ÷£¬²¢ÉÏ´«µ½·şÎñÆ÷
-    function CatchCode() {
-        if(canvas!=null)
-        {
-            //ÒÔÏÂ¿ªÊ¼±à Êı¾İ
-            var imgData = canvas.toDataURL();
-            //½«Í¼Ïñ×ª»»Îªbase64Êı¾İ
-            var base64Data = imgData;//.substr(22); //ÔÚÇ°¶Ë½ØÈ¡22Î»Ö®ºóµÄ×Ö·û´®×÷ÎªÍ¼ÏñÊı¾İ
-            //¿ªÊ¼Òì²½ÉÏ
-            $.post("saveimg.php", { "img": base64Data },function (result)
-            {
-                printHtml("½âÎö½á¹û£º"+result.data);
-                if (result.status == "success" && result.data!="")
-                {
-                    printHtml("½âÎö½á¹û³É¹¦£¡");
-                }else{
-                    startPat();//Èç¹ûÃ»ÓĞ½âÎö³öÀ´ÔòÖØĞÂ×¥ÅÄ½âÎö
+        }, false);
+
+        //ä¸Šä¼ æœåŠ¡å™¨
+        function CatchCode() {
+            var canvans = document.getElementById("canvas");
+//è·å–æµè§ˆå™¨é¡µé¢çš„ç”»å¸ƒå¯¹è±¡
+//ä»¥ä¸‹å¼€å§‹ç¼– æ•°æ®
+            var imgData = canvans.toDataURL();
+//å°†å›¾åƒè½¬æ¢ä¸ºbase64æ•°æ®
+            var base64Data = imgData.substr(22);
+//åœ¨å‰ç«¯æˆªå–22ä½ä¹‹åçš„å­—ç¬¦ä¸²ä½œä¸ºå›¾åƒæ•°æ®
+//å¼€å§‹å¼‚æ­¥ä¸Š
+            $.post("uploadImgCode.ashx", { "img": base64Data }, function (data, status) {
+                if (status == "success") {
+                    if (data == "OK") {
+                        alert("äºŒç»´ å·²ç»è§£æ");
+                    }
+                    else {
+// alert(data);
+                    }
                 }
-            },"json");
+                else {
+                    alert("æ•°æ®ä¸Š å¤±è´¥");
+                }
+            }, "text");
         }
-    }
-</script>
+    </script>
+</head>
 <body>
-
-<div id="support"></div>
 <div id="contentHolder">
     <video id="video" width="320" height="320" autoplay>
     </video>
-    <canvas style="display:none; background-color:#F00;" id="canvas" width="320" height="320">
-    </canvas> <br/>
-    <button id="snap" style="display:none; height:50px; width:120px;">¿ªÊ¼É¨Ãè</button>
+    <input type="button" id="snap" style="width:100px;height:35px;" value="æ‹ ç…§" />
+    <canvas style="" id="canvas" width="320" height="320">
+    </canvas>
 </div>
-
-
-
-</body></html>
+</body>
+</html>
